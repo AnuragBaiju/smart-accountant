@@ -1,0 +1,7 @@
+node_modules
+.DS_Store
+dist
+.env
+amplifyconfiguration.json
+aws-exports.js
+amplify/

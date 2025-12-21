@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Smart Accountant Infrastructure
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.12
+
+Resources:
+  # 1. THE FILE STORAGE (S3 Bucket)
+  InvoiceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'smart-accountant-upload-${AWS::AccountId}'
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: ['GET', 'PUT', 'POST', 'HEAD']
+            AllowedOrigins: ['*']
+            MaxAge: 3000
+
+  # 2. THE DATA STORAGE (DynamoDB Table)
+  InvoiceTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SmartAccountantData
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: InvoiceId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+        - AttributeName: InvoiceId
+          KeyType: RANGE
+
+  # 3. THE API GATEWAY
+  SmartAccountantApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods: ['GET', 'POST', 'OPTIONS']
+        AllowHeaders: ['*']
+        AllowOrigins: ['*']
+
+  # 4. THE UPLOAD TRIGGER (Key Maker)
+  UploadTriggerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/upload_trigger/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          UPLOAD_BUCKET_NAME: !Ref InvoiceBucket
+      Policies:
+        # Permission to generate the upload URL
+        - Statement:
+            - Effect: Allow
+              Action: s3:PutObject
+              Resource: !Sub 'arn:aws:s3:::smart-accountant-upload-${AWS::AccountId}/*'
+      Events:
+        GetUploadUrl:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SmartAccountantApi
+            Path: /get-upload-url
+            Method: GET
+
+  # 5. THE PROCESSOR (Brain)
+  ProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/processor/
+      Handler: app.lambda_handler
+      Policies:
+        # Permission to read the file from S3
+        - S3ReadPolicy:
+            BucketName: !Sub 'smart-accountant-upload-${AWS::AccountId}'
+        # Permission to use AI (Textract)
+        - Statement:
+            - Effect: Allow
+              Action: textract:AnalyzeDocument
+              Resource: "*"
+        # Permission to write to the Database (NEW)
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource: !GetAtt InvoiceTable.Arn
+      Events:
+        FileUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref InvoiceBucket
+            Events: s3:ObjectCreated:*
+  # 6. THE READER (Get Result)
+  GetInvoiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/get_invoice/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InvoiceTable
+      Policies:
+        # Permission to READ from DynamoDB
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:GetItem
+              Resource: !GetAtt InvoiceTable.Arn
+      Events:
+        GetInvoice:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SmartAccountantApi
+            Path: /invoice/{invoice_id}
+            Method: GET
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${SmartAccountantApi}.execute-api.${AWS::Region}.amazonaws.com"
+  BucketName:
+    Value: !Ref InvoiceBucket

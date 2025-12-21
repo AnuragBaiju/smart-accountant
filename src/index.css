@@ -1,0 +1,53 @@
+/* src/index.css */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Dark Theme Setup */
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  /* This prevents the page from jumping left/right when the scrollbar appears */
+  overflow-y: scroll; 
+}
+
+/* ⚠️ THIS FIXES THE SHRINKING NAVBAR ⚠️ */
+#root {
+  width: 100%;       /* Force full width */
+  max-width: none;   /* Remove the default 1280px limit */
+  margin: 0;         /* Remove auto margins */
+  padding: 0;        /* Remove default padding */
+  text-align: left;  /* Reset alignment */
+}
+
+/* Optional: Polished Scrollbar for Dark Mode */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
