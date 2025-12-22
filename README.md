@@ -1,128 +1,81 @@
 cat <<EOF > README.md
-# 🧾 Smart Accountant: Serverless Invoice Processing System
+# 🧾 Smart Accountant: AI-Powered Invoice Automation
 
-![Status](https://img.shields.io/badge/status-active-success)
+![Status](https://img.shields.io/badge/status-live-success)
 ![AWS](https://img.shields.io/badge/AWS-Serverless-orange)
 ![Python](https://img.shields.io/badge/backend-Python_3.9-blue)
 ![React](https://img.shields.io/badge/frontend-React_Vite-violet)
 
-**Smart Accountant** is an event-driven financial automation platform. It eliminates manual data entry by allowing users to upload invoice PDFs, which are asynchronously processed, analyzed for financial data, and stored via a scalable serverless architecture.
+**Smart Accountant** is a next-generation financial platform that eliminates manual data entry. It uses an **Event-Driven Serverless Architecture** to ingest invoice PDFs, automatically extract financial data, and store it for instant analysis.
 
 ---
 
-## 🏗 High-Level Architecture
+## 🏗 Architecture
 
-The system utilizes an **Event-Driven Architecture** to decouple the user interface from heavy processing tasks.
+The system uses an asynchronous pipeline to handle heavy processing without freezing the UI.
 
 \`\`\`mermaid
 graph TD
     User([👤 User]) -->|Uploads PDF| Client[💻 React Dashboard]
     Client -->|Auth| Cognito[🔐 AWS Cognito]
-    Client -->|HTTPS PUT| S3_In[📂 S3 Bucket: Invoices]
-    
-    subgraph "Async Processing Pipeline"
-        S3_In -->|s3:ObjectCreated| Trigger[⚡️ S3 Event Trigger]
-        Trigger -->|Invokes| FN_Process[λ Lambda: Processor]
-        FN_Process -->|Extracts Data| Logic{Analysis Engine}
-        Logic -->|Writes Meta| DDB[(🗄 DynamoDB)]
-        FN_Process -->|Archive| S3_Arch[📂 S3: Archive]
+    Client -->|HTTPS PUT| S3_In[📂 S3: Invoices]
+
+    subgraph "The Serverless Brain"
+        S3_In -->|Trigger Event| FN_Process[λ Lambda: Processor]
+        FN_Process -->|Extract Data| Logic{Analysis Engine}
+        Logic -->|Save Metadata| DDB[(🗄 DynamoDB)]
+        FN_Process -->|Archive File| S3_Arch[📂 S3: Archive]
     end
 
-    subgraph "Data Retrieval API"
-        Client -->|GET /invoices| APIG[🌐 API Gateway]
-        APIG -->|Proxy Integration| FN_Get[λ Lambda: GetInvoice]
+    subgraph "API Layer"
+        Client -->|Fetch Data| APIG[🌐 API Gateway]
+        APIG -->|Route Request| FN_Get[λ Lambda: GetInvoice]
         FN_Get -->|Query| DDB
     end
 \`\`\`
 
 ---
 
-## 🛠 Tech Stack & Services
+## 🛠 Tech Stack
 
-This project leverages **7+ AWS Services** to ensure high availability and zero idle costs.
+### **Frontend (The Interface)**
+* **React (Vite):** Blazing fast dashboard for uploading and viewing invoices.
+* **AWS Amplify:** Handles CI/CD deployment and hosting.
 
-### **Frontend & Hosting**
-* **React (Vite):** High-performance UI for dashboard interactions.
-* **AWS Amplify:** CI/CD pipeline and static asset hosting.
-* **AWS Cognito:** Secure user authentication and session management.
-
-### **Serverless Backend**
-* **Amazon S3:** Object storage for raw invoice PDFs.
-* **AWS Lambda (Python):** Compute layer for file processing and API logic.
-* **Amazon API Gateway:** RESTful interface decoupling frontend from backend.
-* **Amazon DynamoDB:** NoSQL database for sub-millisecond invoice metadata retrieval.
-* **AWS SAM (Serverless Application Model):** Infrastructure as Code (IaC) for backend provisioning.
-* **Amazon CloudWatch:** Distributed tracing and error logging.
+### **Backend (The Engine)**
+* **AWS Lambda (Python):** The compute layer that parses PDFs and runs business logic.
+* **Amazon DynamoDB:** NoSQL database for storing invoice details (Date, Vendor, Amount).
+* **Amazon S3:** Secure storage for raw and processed documents.
+* **AWS SAM:** Infrastructure as Code (IaC) to deploy the entire backend in one command.
 
 ---
 
-## 📂 Repository Structure
+## 🔮 Future Roadmap (The "Smart" Features)
 
-We strictly separate the Application Layer (Frontend) from the Infrastructure Layer (Backend).
-
-\`\`\`text
-smart-accountant/
-├── backend/                  # 🧠 The Serverless Brain (AWS SAM)
-│   ├── functions/            # Lambda Logic (Python)
-│   │   ├── processor/        # ETL Logic: PDF -> JSON
-│   │   ├── upload_trigger/   # S3 Event Handlers
-│   │   └── get_invoice/      # REST API Resolvers
-│   ├── template.yaml         # CloudFormation Infrastructure Definition
-│   └── tests/                # Unit & Integration Tests
-│
-├── src/                      # 💻 The Interface (React)
-│   ├── components/           # Reusable UI Atoms
-│   ├── services/             # API Connectors
-│   └── Dashboard.jsx         # Main Business Logic
-│
-└── amplify/                  # 🚀 Deployment Configuration
-\`\`\`
+* [ ] **🤖 GenAI Financial Analyst:** Integrate **AWS Bedrock (Claude 3)** to allow users to "chat" with their invoices (e.g., *"Why is my electric bill 20% higher this month?"*).
+* [ ] **🚨 Automated Fraud Detection:** Add logic to flag duplicate invoice numbers or suspicious vendor names automatically.
+* [ ] **📩 Smart Alerts:** Use **Amazon SNS** to text/email the user when a high-value invoice (> $1,000) is processed.
+* [ ] **📊 One-Click Export:** Generate CSV/Excel reports compatible with QuickBooks or Xero.
 
 ---
 
-## 🚀 Deployment Guide
+## 🚀 Deployment
 
-### 1. Prerequisites
-* Node.js v18+ & npm
-* Python 3.9+
-* AWS CLI & SAM CLI (configured)
-
-### 2. Backend Deployment (Infrastructure)
-The backend must be deployed first to generate the API endpoints.
-
+### 1. Backend
 \`\`\`bash
 cd backend
-sam build
-sam deploy --guided
-# 📝 Note the 'API Gateway Endpoint URL' from the output
+sam build && sam deploy
 \`\`\`
 
-### 3. Frontend Setup
-Connect the React app to your new serverless backend.
-
+### 2. Frontend
 \`\`\`bash
 cd ..
 npm install
-# Create local secrets file
-echo "VITE_API_URL=<YOUR_API_GATEWAY_URL>" > .env
 npm run dev
 \`\`\`
 
 ---
 
-## 🔮 Future Roadmap
-* [ ] **OCR Integration:** Implement Amazon Textract for granular line-item extraction.
-* [ ] **Analytics Dashboard:** Visual spending reports using QuickSight.
-* [ ] **Multi-Tenant Support:** Isolation for multiple organizations.
-
----
-
-## 🤝 Contributing
-1.  Fork the repository
-2.  Create your feature branch (\`git checkout -b feature/AmazingFeature\`)
-3.  Commit your changes (\`git commit -m 'Add some AmazingFeature'\`)
-4.  Push to the branch (\`git push origin feature/AmazingFeature\`)
-5.  Open a Pull Request
-
-**License:** MIT
+## 🤝 License
+MIT License.
 EOF
