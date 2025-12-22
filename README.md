@@ -69,7 +69,7 @@ graph TD
     APIGW --> LambdaGet
     LambdaGet --> DynamoDB
 
-
+```
 ⸻
 
 🛠️ Technology Stack
