@@ -36,41 +36,42 @@ Smart Accountant uses an Event-Driven Serverless Architecture built entirely on 
 
 ### End-to-End Flow
 
-1. User authenticates using Amazon Cognito
-2. User uploads a PDF invoice via the React dashboard
-3. The invoice is uploaded directly to Amazon S3
-4. S3 upload triggers a Python Lambda function
-5. Lambda extracts invoice metadata (date, amount, vendor)
-6. Metadata is stored in Amazon DynamoDB
-7. Invoice file is archived in S3
-8. Dashboard retrieves data via API Gateway and Lambda
+1. User authenticates using Amazon Cognito  
+2. User uploads a PDF invoice via the React dashboard  
+3. The invoice is uploaded directly to Amazon S3  
+4. S3 upload triggers a Python Lambda function  
+5. Lambda extracts invoice metadata (date, amount, vendor)  
+6. Metadata is stored in Amazon DynamoDB  
+7. Invoice file is archived in S3  
+8. Dashboard retrieves data via API Gateway and Lambda  
 
 ---
 
 ## Architecture Diagram
 
-    ```mermaid
-    graph TD
-        User[User - React Dashboard]
-        Cognito[AWS Cognito]
-        Amplify[AWS Amplify Hosting]
-        S3[S3 Bucket - Invoices]
-        LambdaProcessor[Lambda - Invoice Processor]
-        DynamoDB[DynamoDB - Invoice Metadata]
-        S3Archive[S3 Archive Folder]
-        APIGW[API Gateway]
-        LambdaGet[Lambda - Get Invoice]
+```mermaid
+graph TD
+    User[User - React Dashboard]
+    Cognito[AWS Cognito]
+    Amplify[AWS Amplify Hosting]
+    S3[S3 Bucket - Invoices]
+    LambdaProcessor[Lambda - Invoice Processor]
+    DynamoDB[DynamoDB - Invoice Metadata]
+    S3Archive[S3 Archive Folder]
+    APIGW[API Gateway]
+    LambdaGet[Lambda - Get Invoice]
 
-        User -->|Authenticate| Cognito
-        User -->|Upload Invoice| Amplify
-        Amplify --> S3
-        S3 -->|Event Trigger| LambdaProcessor
-        LambdaProcessor --> DynamoDB
-        LambdaProcessor --> S3Archive
-        User -->|Fetch Invoices| APIGW
-        APIGW --> LambdaGet
-        LambdaGet --> DynamoDB
-    ```
+    User -->|Authenticate| Cognito
+    User -->|Upload Invoice| Amplify
+    Amplify --> S3
+    S3 -->|Event Trigger| LambdaProcessor
+    LambdaProcessor --> DynamoDB
+    LambdaProcessor --> S3Archive
+    User -->|Fetch Invoices| APIGW
+    APIGW --> LambdaGet
+    LambdaGet --> DynamoDB
+
+```
 
 ---
 
