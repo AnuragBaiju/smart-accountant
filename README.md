@@ -1,57 +1,75 @@
-# 🧾 Smart Accountant: AI-Powered Invoice Automation
+# Smart Accountant
+**An AI-powered, serverless invoice automation platform**
 
-![Status](https://img.shields.io/badge/status-live-success)
-![AWS](https://img.shields.io/badge/AWS-Serverless-orange)
-![Python](https://img.shields.io/badge/backend-Python_3.9-blue)
-![React](https://img.shields.io/badge/frontend-React_Vite-violet)
-
-**Smart Accountant** is a next-generation financial platform that eliminates manual data entry. It uses an **Event-Driven Serverless Architecture** to ingest invoice PDFs, automatically extract financial data, and store it for instant analysis.
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![AWS](https://img.shields.io/badge/AWS-Serverless-orange.svg)
+![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
 ---
 
-## 🏗 Architecture
+## 📌 Overview
 
-The system uses an asynchronous pipeline to handle heavy processing without freezing the UI.
+**Smart Accountant** is a full-stack, event-driven, serverless application designed to eliminate manual data entry for accountants.  
+It automates invoice ingestion, parsing, storage, and retrieval using managed AWS services, ensuring scalability, reliability, and low operational overhead.
+
+The system follows a **decoupled, event-driven architecture** where invoice uploads automatically trigger backend processing pipelines, making it suitable for real-world accounting workloads.
+
+---
+
+## 🎯 Problem Statement
+
+Traditional accounting workflows rely heavily on:
+- Manual invoice uploads
+- Repetitive data entry
+- Human validation of amounts, dates, and vendors
+
+This approach is **time-consuming, error-prone, and non-scalable**.
+
+**Smart Accountant** solves this by:
+- Automating invoice ingestion
+- Extracting structured data from PDFs
+- Persisting metadata for fast retrieval
+- Providing a modern dashboard for accountants
+
+---
+
+## 🧠 Architecture Overview
+
+The platform is built using an **Event-Driven Serverless Architecture** on AWS.
+
+### User Flow
+
+1. User authenticates via **Amazon Cognito**
+2. Invoice PDF is uploaded through the **React Dashboard**
+3. File is stored directly in **Amazon S3**
+4. S3 upload event triggers a **Python Lambda (processor)**
+5. Lambda extracts invoice metadata (date, amount, vendor)
+6. Metadata is stored in **Amazon DynamoDB**
+7. File is moved to an **Archive** folder in S3
+8. Dashboard retrieves processed invoices via **API Gateway + Lambda**
+
+---
+
+## 🧩 Architecture Diagram (Mermaid)
 
 ```mermaid
 graph TD
-    User([👤 User]) -->|Uploads PDF| Client[💻 React Dashboard]
-    Client -->|Auth| Cognito[🔐 AWS Cognito]
-    Client -->|HTTPS PUT| S3_In[📂 S3: Invoices]
+    User[User - React Dashboard]
+    Cognito[AWS Cognito]
+    Amplify[AWS Amplify Hosting]
+    S3[S3 Bucket - Invoices]
+    LambdaProcessor[Lambda - Invoice Processor]
+    DynamoDB[DynamoDB - Invoice Metadata]
+    S3Archive[S3 Archive Folder]
+    APIGW[API Gateway]
+    LambdaGet[Lambda - Get Invoice]
 
-    subgraph "The Serverless Brain"
-        S3_In -->|Trigger Event| FN_Process[λ Lambda: Processor]
-        FN_Process -->|Extract Data| Logic{Analysis Engine}
-        Logic -->|Save Metadata| DDB[(🗄 DynamoDB)]
-        FN_Process -->|Archive File| S3_Arch[📂 S3: Archive]
-    end
-
-    subgraph "API Layer"
-        Client -->|Fetch Data| APIG[🌐 API Gateway]
-        APIG -->|Route Request| FN_Get[λ Lambda: GetInvoice]
-        FN_Get -->|Query| DDB
-    end
-
-🛠 Tech Stack
-Frontend (The Interface)
-React (Vite): Blazing fast dashboard for uploading and viewing invoices.
-
-AWS Amplify: Handles CI/CD deployment and hosting.
-
-Backend (The Engine)
-AWS Lambda (Python): The compute layer that parses PDFs and runs business logic.
-
-Amazon DynamoDB: NoSQL database for storing invoice details (Date, Vendor, Amount).
-
-Amazon S3: Secure storage for raw and processed documents.
-
-AWS SAM: Infrastructure as Code (IaC) to deploy the entire backend in one command.
-
-🔮 Future Roadmap (The "Smart" Features)
-[ ] 🤖 GenAI Financial Analyst: Integrate AWS Bedrock (Claude 3) to allow users to "chat" with their invoices (e.g., "Why is my electric bill 20% higher this month?").
-
-[ ] 🚨 Automated Fraud Detection: Add logic to flag duplicate invoice numbers or suspicious vendor names automatically.
-
-[ ] 📩 Smart Alerts: Use Amazon SNS to text/email the user when a high-value invoice (> $1,000) is processed.
-
-[ ] 📊 One-Click Export: Generate CSV/Excel reports compatible with QuickBooks or Xero.
+    User -->|Login| Cognito
+    User -->|Upload PDF| Amplify
+    Amplify --> S3
+    S3 -->|Trigger| LambdaProcessor
+    LambdaProcessor --> DynamoDB
+    LambdaProcessor --> S3Archive
+    User -->|Fetch Data| APIGW
+    APIGW --> LambdaGet
+    LambdaGet --> DynamoDB
