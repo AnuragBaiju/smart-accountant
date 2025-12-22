@@ -1,7 +1,19 @@
+# 1. Dependency Directories (Too heavy)
 node_modules
-.DS_Store
 dist
+
+# 2. System Files (Junk)
+.DS_Store
+
+# 3. Security & Secrets (NEVER UPLOAD THESE)
 .env
-amplifyconfiguration.json
 aws-exports.js
-amplify/
+awsconfiguration.json
+amplifyconfiguration.json
+amplify-meta.json
+amplify/mock-data
+amplify/#current-cloud-backend
+amplify/.config/local-*
+
+# Note: We are NOT ignoring 'amplify/' anymore, 
+# so your Lambda code will successfully go to GitHub.

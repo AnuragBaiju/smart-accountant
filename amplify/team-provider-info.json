@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-smartaccountant-dev-df5cf-authRole",
+      "UnauthRoleArn": "arn:aws:iam::810244486416:role/amplify-smartaccountant-dev-df5cf-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::810244486416:role/amplify-smartaccountant-dev-df5cf-authRole",
+      "Region": "eu-west-1",
+      "DeploymentBucketName": "amplify-smartaccountant-dev-df5cf-deployment",
+      "UnauthRoleName": "amplify-smartaccountant-dev-df5cf-unauthRole",
+      "StackName": "amplify-smartaccountant-dev-df5cf",
+      "StackId": "arn:aws:cloudformation:eu-west-1:810244486416:stack/amplify-smartaccountant-dev-df5cf/e9ff4250-de08-11f0-8422-06c250f21d95",
+      "AmplifyAppId": "dq1hdv96iptop"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "dq1hdv96iptop",
+          "type": "manual"
+        }
+      }
+    }
+  }
+}
