@@ -7,202 +7,198 @@
 
 ---
 
-## 📌 Overview
+## Overview
 
-Smart Accountant is a production-grade, full-stack serverless application that automates invoice ingestion and data extraction for accounting workflows.
+Smart Accountant is a production-grade, full-stack serverless application that automates invoice ingestion and data extraction for accountants and finance teams.
 
-The system removes the need for manual data entry by using an event-driven architecture on AWS. It is designed with scalability, security, and operational simplicity as core principles and follows real-world cloud engineering best practices.
+The platform removes manual data entry by leveraging an event-driven architecture on AWS. It enables automatic upload, parsing, storage, and retrieval of invoice data while maintaining scalability, security, and low operational overhead.
 
----
-
-## 🎯 Problem Statement
-
-Traditional accounting workflows rely on manual invoice uploads, repetitive data entry, and human validation of invoice details such as vendor names, dates, and totals.
-
-These workflows are:
-- Time-consuming
-- Error-prone
-- Difficult to scale
-
-Smart Accountant solves this by automating the complete invoice lifecycle from upload to structured data storage and retrieval.
+This project is designed with real-world accounting workflows in mind and follows cloud-native best practices.
 
 ---
 
-## 🧠 Architecture Overview
+## Problem Statement
 
-Smart Accountant uses an Event-Driven Serverless Architecture built entirely on managed AWS services.
+Traditional invoice processing requires:
+- Manual uploads
+- Repetitive data entry
+- Human validation of financial fields
+
+These workflows are slow, error-prone, and difficult to scale.
+
+Smart Accountant solves this problem by automating the entire invoice lifecycle using serverless, event-driven components.
+
+---
+
+## Architecture Overview
+
+Smart Accountant uses an Event-Driven Serverless Architecture built entirely on AWS managed services.
 
 ### End-to-End Flow
 
-1. User authenticates via Amazon Cognito
-2. User uploads a PDF invoice through the React dashboard
-3. The file is uploaded directly to an Amazon S3 bucket
-4. The S3 upload event triggers a Python Lambda function
-5. Lambda parses the PDF and extracts key invoice metadata
+1. User authenticates using Amazon Cognito
+2. User uploads a PDF invoice via the React dashboard
+3. The invoice is uploaded directly to Amazon S3
+4. S3 upload triggers a Python Lambda function
+5. Lambda extracts invoice metadata (date, amount, vendor)
 6. Metadata is stored in Amazon DynamoDB
-7. The original invoice file is archived in S3
-8. The dashboard retrieves processed data via API Gateway and Lambda
+7. Invoice file is archived in S3
+8. Dashboard retrieves data via API Gateway and Lambda
 
 ---
 
-## 🗺️ Architecture Diagram
+## Architecture Diagram
 
-```mermaid
-graph TD
-    User[User - React Dashboard]
-    Cognito[AWS Cognito]
-    Amplify[AWS Amplify Hosting]
-    S3[S3 Bucket - Invoices]
-    LambdaProcessor[Lambda - Invoice Processor]
-    DynamoDB[DynamoDB - Invoice Metadata]
-    S3Archive[S3 Archive Folder]
-    APIGW[API Gateway]
-    LambdaGet[Lambda - Get Invoice]
+    ```mermaid
+    graph TD
+        User[User - React Dashboard]
+        Cognito[AWS Cognito]
+        Amplify[AWS Amplify Hosting]
+        S3[S3 Bucket - Invoices]
+        LambdaProcessor[Lambda - Invoice Processor]
+        DynamoDB[DynamoDB - Invoice Metadata]
+        S3Archive[S3 Archive Folder]
+        APIGW[API Gateway]
+        LambdaGet[Lambda - Get Invoice]
 
-    User -->|Authenticate| Cognito
-    User -->|Upload PDF| Amplify
-    Amplify --> S3
-    S3 -->|Event Trigger| LambdaProcessor
-    LambdaProcessor --> DynamoDB
-    LambdaProcessor --> S3Archive
-    User -->|Fetch Invoices| APIGW
-    APIGW --> LambdaGet
-    LambdaGet --> DynamoDB
+        User -->|Authenticate| Cognito
+        User -->|Upload Invoice| Amplify
+        Amplify --> S3
+        S3 -->|Event Trigger| LambdaProcessor
+        LambdaProcessor --> DynamoDB
+        LambdaProcessor --> S3Archive
+        User -->|Fetch Invoices| APIGW
+        APIGW --> LambdaGet
+        LambdaGet --> DynamoDB
+    ```
 
-```
-⸻
+---
 
-🛠️ Technology Stack
+## Technology Stack
 
-Frontend
-	•	React (Vite)
-	•	Tailwind CSS
-	•	AWS Amplify (Hosting & CI/CD)
+### Frontend
+- React (Vite)
+- Tailwind CSS
+- AWS Amplify (Hosting & CI/CD)
 
-Authentication
-	•	Amazon Cognito
+### Authentication
+- Amazon Cognito
 
-Backend Compute
-	•	AWS Lambda (Python 3.9)
+### Backend Compute
+- AWS Lambda (Python 3.9)
 
-Infrastructure as Code
-	•	AWS SAM (Serverless Application Model)
+### Infrastructure as Code
+- AWS SAM (Serverless Application Model)
 
-Storage
-	•	Amazon S3 (Raw uploads and archived invoices)
+### Storage
+- Amazon S3 (Raw uploads and archived invoices)
 
-Database
-	•	Amazon DynamoDB (NoSQL)
+### Database
+- Amazon DynamoDB (NoSQL)
 
-API Layer
-	•	Amazon API Gateway (REST)
+### API Layer
+- Amazon API Gateway (REST)
 
-⸻
+---
 
-📂 Repository Structure
+## Repository Structure
 
-.
-├── backend/
-│   ├── template.yaml              # AWS SAM infrastructure definition
-│   └── functions/
-│       ├── processor/             # S3-triggered Lambda
-│       │   └── app.py
-│       └── get_invoice/           # API Gateway Lambda
-│           └── app.py
-│
-├── src/
-│   ├── Dashboard.jsx              # React dashboard
-│   ├── main.jsx
-│   └── api/
-│
-├── amplify/
-│   └── backend/                   # Amplify deployment configuration
-│
-└── README.md
+    .
+    ├── backend/
+    │   ├── template.yaml              # AWS SAM infrastructure definition
+    │   └── functions/
+    │       ├── processor/             # S3-triggered Lambda
+    │       │   └── app.py
+    │       └── get_invoice/           # API Gateway Lambda
+    │           └── app.py
+    │
+    ├── src/
+    │   ├── Dashboard.jsx              # React dashboard
+    │   ├── main.jsx
+    │   └── api/
+    │
+    ├── amplify/
+    │   └── backend/                   # Amplify deployment configuration
+    │
+    └── README.md
 
+---
 
-⸻
+## Installation & Setup
 
-🚀 Installation & Setup
+### Prerequisites
 
-Prerequisites
-	•	AWS Account
-	•	AWS CLI (configured)
-	•	AWS SAM CLI
-	•	Amplify CLI
-	•	Node.js 18+
-	•	Python 3.9
+- AWS Account
+- AWS CLI (configured)
+- AWS SAM CLI
+- Amplify CLI
+- Node.js 18+
+- Python 3.9
 
-⸻
+---
 
-🔧 Backend Setup (AWS SAM)
+## Backend Setup (AWS SAM)
 
-cd backend
-sam build
-sam deploy --guided
+    cd backend
+    sam build
+    sam deploy --guided
 
-This deployment provisions:
-	•	AWS Lambda functions
-	•	Amazon S3 buckets
-	•	Amazon DynamoDB tables
-	•	API Gateway endpoints
-	•	IAM roles and permissions
+This provisions Lambda functions, S3 buckets, DynamoDB tables, API Gateway endpoints, and IAM roles.
 
-⸻
+---
 
-🎨 Frontend Setup (React + Amplify)
+## Frontend Setup (React + Amplify)
 
-npm install
-npm run dev
+    npm install
+    npm run dev
 
-Deployment to AWS:
+Deployment:
 
-amplify init
-amplify publish
+    amplify init
+    amplify publish
 
-AWS Amplify handles hosting, CI/CD pipelines, and environment configuration.
+Amplify manages hosting, CI/CD pipelines, and environment configuration.
 
-⸻
+---
 
-🔐 Security Model
-	•	Authentication and authorization handled by Amazon Cognito
-	•	IAM roles follow least-privilege access principles
-	•	Direct S3 uploads prevent backend exposure
-	•	Invoice files are private and not publicly accessible
-	•	All API endpoints require authenticated requests
+## Security Model
 
-⸻
+- Authentication handled via Amazon Cognito
+- IAM roles follow least-privilege principles
+- Direct S3 uploads prevent backend exposure
+- Invoice files are private and not publicly accessible
+- All API endpoints require authentication
 
-🧭 Future Roadmap
+---
 
-🤖 GenAI Integration
-	•	Natural language interaction with invoices
-	•	Powered by AWS Bedrock (Claude 3)
-	•	Query invoices using conversational prompts
+## Future Roadmap
 
-🕵️ Fraud Detection
-	•	Automatic detection of duplicate invoices
-	•	Vendor and invoice number anomaly detection
+### GenAI Integration
+- Chat with invoices using AWS Bedrock (Claude 3)
+- Natural language financial queries
 
-🔔 Smart Alerts
-	•	SNS notifications for high-value invoices
-	•	Alerts for suspicious billing behavior
+### Fraud Detection
+- Duplicate invoice detection
+- Vendor and invoice number anomaly detection
 
-⸻
+### Smart Alerts
+- SNS notifications for high-value invoices
+- Alerts for suspicious billing patterns
 
-📜 License
+---
+
+## License
 
 MIT License
 
-⸻
+---
 
-🧑‍💻 Author Notes
+## Author Notes
 
-This project is built with a senior-engineer mindset:
-	•	Event-driven serverless design
-	•	Infrastructure defined as code
-	•	Clean separation of concerns
-	•	Cloud-native scalability and security
+This project is built with senior-level engineering principles:
+- Event-driven serverless design
+- Infrastructure as Code
+- Clean separation of concerns
+- Cloud-native scalability and security
 
 Smart Accountant is intended as a real-world foundation for modern accounting automation platforms.
-
