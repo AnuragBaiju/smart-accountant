@@ -1,4 +1,3 @@
-cat <<EOF > README.md
 # 🧾 Smart Accountant: AI-Powered Invoice Automation
 
 ![Status](https://img.shields.io/badge/status-live-success)
@@ -14,7 +13,7 @@ cat <<EOF > README.md
 
 The system uses an asynchronous pipeline to handle heavy processing without freezing the UI.
 
-\`\`\`mermaid
+```mermaid
 graph TD
     User([👤 User]) -->|Uploads PDF| Client[💻 React Dashboard]
     Client -->|Auth| Cognito[🔐 AWS Cognito]
@@ -32,50 +31,27 @@ graph TD
         APIG -->|Route Request| FN_Get[λ Lambda: GetInvoice]
         FN_Get -->|Query| DDB
     end
-\`\`\`
 
----
+🛠 Tech Stack
+Frontend (The Interface)
+React (Vite): Blazing fast dashboard for uploading and viewing invoices.
 
-## 🛠 Tech Stack
+AWS Amplify: Handles CI/CD deployment and hosting.
 
-### **Frontend (The Interface)**
-* **React (Vite):** Blazing fast dashboard for uploading and viewing invoices.
-* **AWS Amplify:** Handles CI/CD deployment and hosting.
+Backend (The Engine)
+AWS Lambda (Python): The compute layer that parses PDFs and runs business logic.
 
-### **Backend (The Engine)**
-* **AWS Lambda (Python):** The compute layer that parses PDFs and runs business logic.
-* **Amazon DynamoDB:** NoSQL database for storing invoice details (Date, Vendor, Amount).
-* **Amazon S3:** Secure storage for raw and processed documents.
-* **AWS SAM:** Infrastructure as Code (IaC) to deploy the entire backend in one command.
+Amazon DynamoDB: NoSQL database for storing invoice details (Date, Vendor, Amount).
 
----
+Amazon S3: Secure storage for raw and processed documents.
 
-## 🔮 Future Roadmap (The "Smart" Features)
+AWS SAM: Infrastructure as Code (IaC) to deploy the entire backend in one command.
 
-* [ ] **🤖 GenAI Financial Analyst:** Integrate **AWS Bedrock (Claude 3)** to allow users to "chat" with their invoices (e.g., *"Why is my electric bill 20% higher this month?"*).
-* [ ] **🚨 Automated Fraud Detection:** Add logic to flag duplicate invoice numbers or suspicious vendor names automatically.
-* [ ] **📩 Smart Alerts:** Use **Amazon SNS** to text/email the user when a high-value invoice (> $1,000) is processed.
-* [ ] **📊 One-Click Export:** Generate CSV/Excel reports compatible with QuickBooks or Xero.
+🔮 Future Roadmap (The "Smart" Features)
+[ ] 🤖 GenAI Financial Analyst: Integrate AWS Bedrock (Claude 3) to allow users to "chat" with their invoices (e.g., "Why is my electric bill 20% higher this month?").
 
----
+[ ] 🚨 Automated Fraud Detection: Add logic to flag duplicate invoice numbers or suspicious vendor names automatically.
 
-## 🚀 Deployment
+[ ] 📩 Smart Alerts: Use Amazon SNS to text/email the user when a high-value invoice (> $1,000) is processed.
 
-### 1. Backend Setup
-\`\`\`bash
-cd backend
-sam build && sam deploy
-\`\`\`
-
-### 2. Frontend Setup
-\`\`\`bash
-cd ..
-npm install
-npm run dev
-\`\`\`
-
----
-
-## 🤝 License
-MIT License.
-EOF
+[ ] 📊 One-Click Export: Generate CSV/Excel reports compatible with QuickBooks or Xero.
