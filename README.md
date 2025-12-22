@@ -1,5 +1,5 @@
 # Smart Accountant
-**An AI-powered, serverless invoice automation platform**
+## An AI-powered, serverless invoice automation platform
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![AWS](https://img.shields.io/badge/AWS-Serverless-orange.svg)
@@ -9,48 +9,43 @@
 
 ## 📌 Overview
 
-**Smart Accountant** is a full-stack, event-driven, serverless application designed to eliminate manual data entry for accountants.  
-It automates invoice ingestion, parsing, storage, and retrieval using managed AWS services, ensuring scalability, reliability, and low operational overhead.
+Smart Accountant is a production-grade, full-stack serverless application that automates invoice ingestion and data extraction for accounting workflows.
 
-The system follows a **decoupled, event-driven architecture** where invoice uploads automatically trigger backend processing pipelines, making it suitable for real-world accounting workloads.
+The system removes the need for manual data entry by using an event-driven architecture on AWS. It is designed with scalability, security, and operational simplicity as core principles and follows real-world cloud engineering best practices.
 
 ---
 
 ## 🎯 Problem Statement
 
-Traditional accounting workflows rely heavily on:
-- Manual invoice uploads
-- Repetitive data entry
-- Human validation of amounts, dates, and vendors
+Traditional accounting workflows rely on manual invoice uploads, repetitive data entry, and human validation of invoice details such as vendor names, dates, and totals.
 
-This approach is **time-consuming, error-prone, and non-scalable**.
+These workflows are:
+- Time-consuming
+- Error-prone
+- Difficult to scale
 
-**Smart Accountant** solves this by:
-- Automating invoice ingestion
-- Extracting structured data from PDFs
-- Persisting metadata for fast retrieval
-- Providing a modern dashboard for accountants
+Smart Accountant solves this by automating the complete invoice lifecycle from upload to structured data storage and retrieval.
 
 ---
 
 ## 🧠 Architecture Overview
 
-The platform is built using an **Event-Driven Serverless Architecture** on AWS.
+Smart Accountant uses an Event-Driven Serverless Architecture built entirely on managed AWS services.
 
-### User Flow
+### End-to-End Flow
 
-1. User authenticates via **Amazon Cognito**
-2. Invoice PDF is uploaded through the **React Dashboard**
-3. File is stored directly in **Amazon S3**
-4. S3 upload event triggers a **Python Lambda (processor)**
-5. Lambda extracts invoice metadata (date, amount, vendor)
-6. Metadata is stored in **Amazon DynamoDB**
-7. File is moved to an **Archive** folder in S3
-8. Dashboard retrieves processed invoices via **API Gateway + Lambda**
+1. User authenticates via Amazon Cognito
+2. User uploads a PDF invoice through the React dashboard
+3. The file is uploaded directly to an Amazon S3 bucket
+4. The S3 upload event triggers a Python Lambda function
+5. Lambda parses the PDF and extracts key invoice metadata
+6. Metadata is stored in Amazon DynamoDB
+7. The original invoice file is archived in S3
+8. The dashboard retrieves processed data via API Gateway and Lambda
 
 ---
 
-## 🧩 Architecture Diagram (Mermaid)
+## 🗺️ Architecture Diagram
 
 ```mermaid
 graph TD
@@ -64,12 +59,150 @@ graph TD
     APIGW[API Gateway]
     LambdaGet[Lambda - Get Invoice]
 
-    User -->|Login| Cognito
+    User -->|Authenticate| Cognito
     User -->|Upload PDF| Amplify
     Amplify --> S3
-    S3 -->|Trigger| LambdaProcessor
+    S3 -->|Event Trigger| LambdaProcessor
     LambdaProcessor --> DynamoDB
     LambdaProcessor --> S3Archive
-    User -->|Fetch Data| APIGW
+    User -->|Fetch Invoices| APIGW
     APIGW --> LambdaGet
     LambdaGet --> DynamoDB
+
+
+⸻
+
+🛠️ Technology Stack
+
+Frontend
+	•	React (Vite)
+	•	Tailwind CSS
+	•	AWS Amplify (Hosting & CI/CD)
+
+Authentication
+	•	Amazon Cognito
+
+Backend Compute
+	•	AWS Lambda (Python 3.9)
+
+Infrastructure as Code
+	•	AWS SAM (Serverless Application Model)
+
+Storage
+	•	Amazon S3 (Raw uploads and archived invoices)
+
+Database
+	•	Amazon DynamoDB (NoSQL)
+
+API Layer
+	•	Amazon API Gateway (REST)
+
+⸻
+
+📂 Repository Structure
+
+.
+├── backend/
+│   ├── template.yaml              # AWS SAM infrastructure definition
+│   └── functions/
+│       ├── processor/             # S3-triggered Lambda
+│       │   └── app.py
+│       └── get_invoice/           # API Gateway Lambda
+│           └── app.py
+│
+├── src/
+│   ├── Dashboard.jsx              # React dashboard
+│   ├── main.jsx
+│   └── api/
+│
+├── amplify/
+│   └── backend/                   # Amplify deployment configuration
+│
+└── README.md
+
+
+⸻
+
+🚀 Installation & Setup
+
+Prerequisites
+	•	AWS Account
+	•	AWS CLI (configured)
+	•	AWS SAM CLI
+	•	Amplify CLI
+	•	Node.js 18+
+	•	Python 3.9
+
+⸻
+
+🔧 Backend Setup (AWS SAM)
+
+cd backend
+sam build
+sam deploy --guided
+
+This deployment provisions:
+	•	AWS Lambda functions
+	•	Amazon S3 buckets
+	•	Amazon DynamoDB tables
+	•	API Gateway endpoints
+	•	IAM roles and permissions
+
+⸻
+
+🎨 Frontend Setup (React + Amplify)
+
+npm install
+npm run dev
+
+Deployment to AWS:
+
+amplify init
+amplify publish
+
+AWS Amplify handles hosting, CI/CD pipelines, and environment configuration.
+
+⸻
+
+🔐 Security Model
+	•	Authentication and authorization handled by Amazon Cognito
+	•	IAM roles follow least-privilege access principles
+	•	Direct S3 uploads prevent backend exposure
+	•	Invoice files are private and not publicly accessible
+	•	All API endpoints require authenticated requests
+
+⸻
+
+🧭 Future Roadmap
+
+🤖 GenAI Integration
+	•	Natural language interaction with invoices
+	•	Powered by AWS Bedrock (Claude 3)
+	•	Query invoices using conversational prompts
+
+🕵️ Fraud Detection
+	•	Automatic detection of duplicate invoices
+	•	Vendor and invoice number anomaly detection
+
+🔔 Smart Alerts
+	•	SNS notifications for high-value invoices
+	•	Alerts for suspicious billing behavior
+
+⸻
+
+📜 License
+
+MIT License
+
+⸻
+
+🧑‍💻 Author Notes
+
+This project is built with a senior-engineer mindset:
+	•	Event-driven serverless design
+	•	Infrastructure defined as code
+	•	Clean separation of concerns
+	•	Cloud-native scalability and security
+
+Smart Accountant is intended as a real-world foundation for modern accounting automation platforms.
+
