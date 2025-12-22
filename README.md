@@ -61,13 +61,13 @@ graph TD
 
 ## 🚀 Deployment
 
-### 1. Backend
+### 1. Backend Setup
 \`\`\`bash
 cd backend
 sam build && sam deploy
 \`\`\`
 
-### 2. Frontend
+### 2. Frontend Setup
 \`\`\`bash
 cd ..
 npm install
