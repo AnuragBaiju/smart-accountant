@@ -9,9 +9,8 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
   const [selectedMonth, setSelectedMonth] = useState("All Time");
   const [myBudget, setMyBudget] = useState(2000); 
 
-  // --- 1. FETCH BUDGET & CLEAN DATA ---
+  // --- 1. FETCH BUDGET ---
   useEffect(() => {
-      // Find the budget item (hidden "Ticket")
       const budgetItem = invoices.find(inv => 
           inv.Type === 'Budget' && 
           (inv.UserId === userId || (inv.InvoiceId && inv.InvoiceId.includes(userId)))
@@ -49,8 +48,10 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
     }
   };
 
-  // --- 3. FILTERING LOGIC (THE JANITOR) ---
+  // --- 3. FILTERING & DEDUPLICATION LOGIC ---
   const cleanInvoices = useMemo(() => {
+      const uniqueKeys = new Set();
+      
       return invoices.filter(inv => {
           // RULE 1: Hide Budget Tickets
           if (inv.Type === 'Budget') return false;
@@ -58,17 +59,23 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
           const amountStr = inv.DetectedTotal || "0";
           const amount = parseFloat(amountStr.replace(/[$,]/g, ''));
 
-          // RULE 2: Hide Empty/Failed Scans ($0.00 or NaN)
+          // RULE 2: Hide Empty/Failed Scans
           if (!amount || isNaN(amount) || amount === 0) return false;
-
-          // RULE 3: Hide Negative Ghosts (Fixes the $-1020.90 issue)
           if (amount < 0) return false;
 
-          // RULE 4: Hide Broken PDFs (Fixes "cant open pdf")
+          // RULE 3: Hide Broken PDFs
           if (!inv.PdfUrl || inv.PdfUrl === "undefined") return false;
 
-          // RULE 5: Hide Completely Unknown Ghosts
-          if (inv.Vendor === "Unknown Vendor" && !inv.DateProcessed && !inv.UploadDate) return false;
+          // RULE 4: Hide Unknown Ghosts
+          if (inv.Vendor === "Unknown Vendor" && !inv.DateProcessed) return false;
+
+          // RULE 5: THE DE-DUPLICATOR (New!)
+          // We create a unique "fingerprint" for each invoice
+          const fingerprint = `${inv.Vendor}-${amount}-${inv.DateProcessed || inv.UploadDate}`;
+          if (uniqueKeys.has(fingerprint)) {
+              return false; // Skip duplicate
+          }
+          uniqueKeys.add(fingerprint);
 
           return true;
       });
@@ -79,7 +86,6 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
     months.add("All Time");
     cleanInvoices.forEach(inv => {
         const dateStr = inv.DateProcessed || inv.UploadDate;
-        // Only allow valid dates (YYYY-MM), exclude 2099
         if (dateStr && dateStr.length >= 7 && !dateStr.includes('2099')) {
             months.add(dateStr.slice(0, 7));
         }
@@ -92,7 +98,6 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
         ? cleanInvoices 
         : cleanInvoices.filter(inv => (inv.DateProcessed || inv.UploadDate || "").startsWith(selectedMonth));
     
-    // Sort by date new -> old
     return data.sort((a, b) => new Date(b.DateProcessed || 0) - new Date(a.DateProcessed || 0));
   }, [cleanInvoices, selectedMonth]);
 
@@ -144,8 +149,7 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
         {data.map((inv) => (
           <tr key={inv.InvoiceId} style={{ borderBottom: '1px solid #333' }}>
             <td style={{padding: '15px', color: '#aaa', fontSize: '14px'}}>
-                {/* Pretty Date or Fallback */}
-                {inv.DateProcessed || (inv.UploadDate ? inv.UploadDate.slice(0, 10) : "Unknown Date")}
+                {inv.DateProcessed || (inv.UploadDate ? inv.UploadDate.slice(0, 10) : "Unknown")}
             </td>
             <td style={{padding: '15px', fontWeight: 'bold', color: 'white'}}>{inv.Vendor || "Unknown Vendor"}</td>
             <td style={{padding: '15px'}}><span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', backgroundColor: getCategoryColor(inv.Category), color: 'white' }}>{inv.Category}</span></td>
@@ -179,6 +183,8 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
 
       {/* STATS AREA */}
       <div style={{display: 'flex', gap: '20px', marginBottom: '40px', alignItems: 'stretch', flexWrap: 'wrap'}}>
+        
+        {/* BUDGET BOX */}
         <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '20px'}}>
             <div style={{flex: 1, background: '#1a1a1a', padding: '15px 20px', borderRadius: '12px', border: '1px solid #333', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px'}}>
@@ -193,11 +199,20 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
             </div>
         </div>
 
-        <div style={{flex: 1, background: '#1a1a1a', borderRadius: '12px', padding: '20px', minWidth: '300px', border: '1px solid #333'}}>
+        {/* CHART BOX (Fixed Height!) */}
+        <div style={{flex: 1, background: '#1a1a1a', borderRadius: '12px', padding: '20px', minWidth: '300px', border: '1px solid #333', minHeight: '250px'}}>
             <h4 style={{marginTop: 0, marginBottom: '20px', color: '#aaa', textAlign: 'center'}}>Spending by Category</h4>
             {chartData.length > 0 ? (
-                <div style={{ width: '100%', height: 200 }}>
-                    <ResponsiveContainer><PieChart><Pie data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} stroke="none"/>))}</Pie><Tooltip contentStyle={{backgroundColor: '#333', border: 'none'}} formatter={(value) => `$${value.toFixed(2)}`}/><Legend verticalAlign="bottom" height={36}/></PieChart></ResponsiveContainer>
+                <div style={{ width: '100%', height: '200px' }}> 
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                {chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} stroke="none"/>))}
+                            </Pie>
+                            <Tooltip contentStyle={{backgroundColor: '#333', border: 'none', borderRadius: '8px'}} formatter={(value) => `$${value.toFixed(2)}`}/>
+                            <Legend verticalAlign="bottom" height={36}/>
+                        </PieChart>
+                    </ResponsiveContainer>
                 </div>
             ) : (<p style={{textAlign: 'center', color: '#555', marginTop: '60px'}}>No data to display</p>)}
         </div>
