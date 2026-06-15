@@ -991,6 +991,43 @@
       "limit_key": "MaxResults",
       "output_token": "NextToken",
       "result_key": "VpnConcentrators"
+    },
+    "SearchTransitGatewayRoutes": {
+      "input_token": "NextToken",
+      "limit_key": "MaxResults",
+      "more_results": "AdditionalRoutesAvailable",
+      "output_token": "NextToken",
+      "result_key": "Routes"
+    },
+    "DescribeSecondaryInterfaces": {
+      "input_token": "NextToken",
+      "limit_key": "MaxResults",
+      "output_token": "NextToken",
+      "result_key": "SecondaryInterfaces"
+    },
+    "DescribeSecondaryNetworks": {
+      "input_token": "NextToken",
+      "limit_key": "MaxResults",
+      "output_token": "NextToken",
+      "result_key": "SecondaryNetworks"
+    },
+    "DescribeSecondarySubnets": {
+      "input_token": "NextToken",
+      "limit_key": "MaxResults",
+      "output_token": "NextToken",
+      "result_key": "SecondarySubnets"
+    },
+    "GetCapacityManagerMonitoredTagKeys": {
+      "input_token": "NextToken",
+      "limit_key": "MaxResults",
+      "output_token": "NextToken",
+      "result_key": "CapacityManagerTagKeys"
+    },
+    "DescribeIpamPoolAllocations": {
+      "input_token": "NextToken",
+      "limit_key": "MaxResults",
+      "output_token": "NextToken",
+      "result_key": "IpamPoolAllocations"
     }
   }
 }
