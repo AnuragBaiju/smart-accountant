@@ -9,13 +9,14 @@ Amplify.configure({
     Cognito: {
       userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
       userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
-      region: import.meta.env.VITE_AWS_REGION,
+      identityPoolId: import.meta.env.VITE_COGNITO_IDENTITY_POOL_ID,
+      region: import.meta.env.VITE_AWS_REGION, 
     }
   },
   Storage: {
     S3: {
       bucket: import.meta.env.VITE_STORAGE_BUCKET,
-      region: import.meta.env.VITE_AWS_REGION
+      region: 'us-east-1' // Keep this hardcoded since your S3 is in a different region than your Auth
     }
   }
 });

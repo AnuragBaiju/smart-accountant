@@ -3,7 +3,7 @@ import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { uploadData } from 'aws-amplify/storage'; 
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = String(import.meta.env.VITE_API_URL).replace(/\/\/prod/g, "/prod");
 
 export default function Dashboard({ invoices, onRefresh, userId }) {
   const [loadingId, setLoadingId] = useState(null);
@@ -33,8 +33,7 @@ export default function Dashboard({ invoices, onRefresh, userId }) {
       setUploading(true);
       await uploadData({
         key: file.name,
-        data: file,
-        options: { accessLevel: 'guest' }
+        data: file
       }).result;
 
       alert(`✅ Uploaded: ${file.name}\nIt will appear in the list momentarily.`);

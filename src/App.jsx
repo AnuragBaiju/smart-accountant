@@ -31,8 +31,7 @@ Amplify.configure({
   }
 });
 
-const API_ENDPOINT = import.meta.env.VITE_API_URL + '/prod';
-
+const API_ENDPOINT = String(import.meta.env.VITE_API_URL).replace(/\/\/prod/g, "/prod");
 
 function App() {
   const [userName, setUserName] = useState(""); 
