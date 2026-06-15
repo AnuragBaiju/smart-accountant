@@ -162,7 +162,8 @@ export default function AdminPanel({ invoices, currentUserId, currentUserName })
       return sortConfig.direction === 'asc' ? '↑' : '↓';
   };
 
-  const API_URL = "https://ytywhx6eq0.execute-api.us-east-1.amazonaws.com/prod"; 
+const API_URL = import.meta.env.VITE_API_URL + '/prod';
+
 
   const updateBudget = async (userId, newAmount) => {
     try {

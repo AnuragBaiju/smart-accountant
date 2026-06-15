@@ -7,15 +7,15 @@ import { Amplify } from 'aws-amplify';
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: 'eu-west-1_EVhy3v8FD',
-      userPoolClientId: 'ku9og12s7nl351s57592npaue',
-      region: 'eu-west-1', 
+      userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
+      userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
+      region: import.meta.env.VITE_AWS_REGION,
     }
   },
   Storage: {
     S3: {
-      bucket: 'smart-accountant-upload-049145893383',
-      region: 'us-east-1' 
+      bucket: import.meta.env.VITE_STORAGE_BUCKET,
+      region: import.meta.env.VITE_AWS_REGION
     }
   }
 });

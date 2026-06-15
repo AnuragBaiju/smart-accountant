@@ -31,7 +31,8 @@ Amplify.configure({
   }
 });
 
-const API_ENDPOINT = "https://ytywhx6eq0.execute-api.us-east-1.amazonaws.com/prod";
+const API_ENDPOINT = import.meta.env.VITE_API_URL + '/prod';
+
 
 function App() {
   const [userName, setUserName] = useState(""); 
