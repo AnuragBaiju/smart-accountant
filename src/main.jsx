@@ -3,21 +3,24 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-// 1. Import Amplify
 import { Amplify } from 'aws-amplify';
 
-// 2. Safely connect your environment variables
 Amplify.configure({
   Auth: {
     Cognito: {
       userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
       userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
-      region: import.meta.env.VITE_AWS_REGION,
+      region: 'eu-west-1', // Your Cognito is in Ireland
+    }
+  },
+  Storage: {
+    S3: {
+      bucket: import.meta.env.VITE_STORAGE_BUCKET,
+      region: 'us-east-1' // Your S3 Bucket is in Virginia
     }
   }
 });
 
-// 3. Your exact untouched root render
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
