@@ -162,7 +162,9 @@ export default function AdminPanel({ invoices, currentUserId, currentUserName })
       return sortConfig.direction === 'asc' ? '↑' : '↓';
   };
 
-const API_URL = String(import.meta.env.VITE_API_URL).replace(/\/\/prod/g, "/prod");
+const rawUrl = import.meta.env.VITE_API_URL || "";
+const cleanBase = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
+const API_URL = cleanBase.endsWith('/prod') ? cleanBase : `${cleanBase}/prod`;
 
   const updateBudget = async (userId, newAmount) => {
     try {
